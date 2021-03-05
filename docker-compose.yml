@@ -1,0 +1,66 @@
+version: '3.8'
+services:
+  tomcat:
+    build:
+      context: war
+      dockerfile: Dockerfile
+    container_name: tomcat
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+
+  flaskserveur:
+    build:
+      context: serveur
+      dockerfile: Dockerfile
+    container_name: flaskserveur
+    restart: unless-stopped
+    volumes:
+      - appdata:/var/www
+    ports:
+      - "9999:8080"
+    links:
+      - "db"
+
+  client:
+    build:
+      context: client
+      dockerfile: Dockerfile
+    container_name: client
+    restart: unless-stopped
+    volumes:
+      - clientdata:/var/www
+    ports:
+      - "80:80"
+    links:
+      - "db"
+
+  db:
+     command: --default-authentication-plugin=mysql_native_password
+     build:
+      context: db
+      dockerfile: Dockerfile
+     volumes:
+       - db_data:/var/lib/mysql
+     restart: always
+     ports:
+      - "3306:3306"
+
+     environment:
+       MYSQL_ROOT_PASSWORD: test
+       MYSQL_DATABASE: lolmdr10_ws
+       MYSQL_USER: test
+       MYSQL_PASSWORD: test
+    
+      
+
+volumes:
+  appdata:
+    driver: local
+  clientdata:
+    driver: local
+  db_data:
+    driver: local
+
+
+
